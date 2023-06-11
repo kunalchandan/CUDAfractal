@@ -1,6 +1,9 @@
 # Optics Simulation
 Simulation using CUDA and C++.
 
+I hate C++ with a passion, but we all need to do things that we hate some times.
+I trued using Conan to use it as a package manager, but I just couldn't get things working.
+
 ## Installation
 ```bash
 # C++ 
@@ -17,7 +20,7 @@ sudo apt install pkg-config
 sudo apt install libx11-dev libfontconfig1-dev libfreetype6-dev libxcursor-dev libxfixes-dev libxft-dev libxi-dev libxrandr-dev libxrender-dev
 ```
 
-## Running:
+## Running
 ```bash
 nvcc hello_x11.cpp --std=c++17 -lX11 -o main.x
 ./main.x

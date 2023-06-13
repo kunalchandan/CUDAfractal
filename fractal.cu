@@ -15,7 +15,7 @@
 #include <tuple>
 #include <vector>
 
-const uint32_t WIDTH = 640, HEIGHT = 480;
+const uint32_t WIDTH = 2048, HEIGHT = 2048;
 const uint32_t ITER_MAX = 512;
 
 void mandelbrot_single_thread(int n, int* mbr) {
@@ -64,6 +64,32 @@ __global__ void mandelbrot_single_thread_gpu(int n, int* mbr) {
     }
 }
 
+__global__ void
+mandelbrot_multi_thread_gpu(int n, int* mbr, uint16_t thread_blocks, uint16_t threads) {
+    int tid          = blockIdx.x * blockDim.x + threadIdx.x;
+    int section_size = (n) / (thread_blocks * threads);
+    for(int i = tid * section_size; i < (tid + 1) * section_size; i++) {
+        // Index from the top left, using row-major order/x-major order
+        uint32_t x_index = (i % WIDTH);
+        uint32_t y_index = (i / WIDTH);
+
+        float calculated_position_x = (x_index / (1.0 * WIDTH)) - 0.5;
+        float calculated_position_y = (y_index / (1.0 * HEIGHT)) - 0.5;
+
+        cuFloatComplex z_0 = make_cuFloatComplex(calculated_position_x, calculated_position_y);
+        cuFloatComplex z_n = make_cuFloatComplex(calculated_position_x, calculated_position_y);
+
+        int m_i = 0;
+        for(m_i = 0; m_i < ITER_MAX; m_i++) {
+            z_n = cuCaddf(cuCmulf(z_n, z_n), z_0);
+            if(cuCabsf(z_n) > 2.0) {
+                break;
+            }
+        }
+        mbr[i] = m_i;
+    }
+}
+
 void drawCalculation(Display* di, Window wi, GC gc, int* mbr, std::vector<uint32_t> color_lookup) {
     for(int x = 0; x < WIDTH; x++) {
         for(int y = 0; y < HEIGHT; y++) {
@@ -76,8 +102,10 @@ void drawCalculation(Display* di, Window wi, GC gc, int* mbr, std::vector<uint32
 std::vector<uint32_t> generate_color_lookup() {
     std::vector<uint32_t> table = std::vector<uint32_t>(ITER_MAX);
     for(int x = 0; x < ITER_MAX; x++) {
-        uint32_t l2 = (std::log2(x));
-        table[x]    = (l2) | (l2 << 8) | (l2 << 16);
+        // uint32_t l2 = (std::log2(x));
+        uint32_t l2 = (x * 255.0) / ITER_MAX;
+        // std::printf("%i", l2);
+        table[x] = (l2) | (l2 << 8) | (l2 << 16);
     }
     return table;
 }
@@ -97,7 +125,7 @@ std::tuple<Display*, Window, GC> OpenDisplay() {
     Window    wi = XCreateSimpleWindow(
         di, ro, x, y, WIDTH, HEIGHT, border_width, BlackPixel(di, sc), WhitePixel(di, sc));
     XMapWindow(di, wi); //Make window visible
-    XStoreName(di, wi, "Window sample"); // Set window title
+    XStoreName(di, wi, "Mandelbrot Fractal"); // Set window title
 
     //Prepare the window for drawing
     GC gc = XCreateGC(di, ro, 0, NULL);
@@ -105,7 +133,7 @@ std::tuple<Display*, Window, GC> OpenDisplay() {
     return std::make_tuple(di, wi, gc);
 }
 
-void userInput(Display* di, Window wi, GC gc) {
+void userInput(Display* di, Window wi, GC gc, int* mbr, std::vector<uint32_t> color_lookup) {
     //Select what events the window will listen to
     XSelectInput(di, wi, KeyPressMask | ExposureMask);
     XEvent ev;
@@ -130,7 +158,11 @@ int main(void) {
 
     // Allocate Unified Memory – accessible from CPU or GPU
     cudaMallocManaged(&mbr, N * sizeof(float));
-    mandelbrot_single_thread_gpu<<<1, 1>>>(N, mbr);
+    // mandelbrot_single_thread_gpu<<<1, 1>>>(N, mbr);
+    uint16_t thread_blocks = 4;
+    uint16_t threads       = 256;
+
+    mandelbrot_multi_thread_gpu<<<thread_blocks, threads>>>(N, mbr, thread_blocks, threads);
 
     // Wait for GPU to finish before accessing on host
     cudaDeviceSynchronize();
@@ -140,8 +172,7 @@ int main(void) {
 
     drawCalculation(di, wi, gc, mbr, color_lookup_table);
 
+    userInput(di, wi, gc, mbr, color_lookup_table);
     // Free memory
     cudaFree(mbr);
-
-    userInput(di, wi, gc);
 }

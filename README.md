@@ -1,6 +1,12 @@
-# Optics Simulation
+# Mandelbrot Fractal
 
-Simulation using CUDA and C++.
+Mandelbrot fraction using CUDA and C++.
+
+On a `2048x2048`px grid I was able to achieve approximately a `560x` speedup for generating a render using a naive approach.
+
+![Nice render](imgs/render-nice.png)
+
+Dependancies and build instructions are listed below.
 
 I hate C++ with a passion, but we all need to do things that we hate some times.
 
@@ -13,7 +19,7 @@ First render using a single threaded GPU:
 Profiling results for a `640px` width and height:
 
 ```plain
-==42584== Profiling application: ./build/optiks
+==42584== Profiling application: ./build/mandelFrac
 ==42584== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
  GPU activities:  100.00%  20.5107s         1  20.5107s  20.5107s  20.5107s  mandelbrot_single_thread_gpu(int, int*)
@@ -34,7 +40,7 @@ Similarly for a `2048px` width and height:
 ![render larger](imgs/render-2048-2048.png)
 
 ```plain
-==42795== Profiling application: ./build/optiks
+==42795== Profiling application: ./build/mandelFrac
 ==42795== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
  GPU activities:  100.00%  208.700s         1  208.700s  208.700s  208.700s  mandelbrot_single_thread_gpu(int, int*)
@@ -55,7 +61,7 @@ Now for the multithreaded version with 4 thread blocks and 256 threads.
 ![render larger](imgs/render-2048-2048-gpu.png)
 
 ```plain
-==43499== Profiling application: ./build/optiks
+==43499== Profiling application: ./build/mandelFrac
 ==43499== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
  GPU activities:  100.00%  371.59ms         1  371.59ms  371.59ms  371.59ms  mandelbrot_multi_thread_gpu(int, int*, unsigned short, unsigned short)
@@ -74,6 +80,8 @@ Now for the multithreaded version with 4 thread blocks and 256 threads.
 The speedup is wild. I get a `56 160%` speedup!!
 
 ## Installation
+
+Requires an NVIDIA GPU, and you must install CUDA as recommended by your system.
 
 ```bash
 # C++ 
@@ -108,11 +116,13 @@ sudo ln -s /opt/cmake-3.26.4-linux-x86_64/bin/* /usr/local/bin/
 ```bash
 cmake .
 make
-./build/optiks
+./build/mandelFrac
 ```
 
 or
 
 ```bash
-cmake . && make clear && ./build/optiks
+cmake . && make clear && ./build/mandelFrac
+# or
+cmake . && make && clear && nvprof ./build/mandelFrac
 ```

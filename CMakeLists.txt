@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(optiks LANGUAGES CUDA CXX)
+project(mandelFrac LANGUAGES CUDA CXX)
 
 # Set the C++17 standard
 set(CMAKE_CXX_STANDARD 17)

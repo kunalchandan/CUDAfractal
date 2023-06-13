@@ -47,8 +47,8 @@ __global__ void mandelbrot_single_thread_gpu(int n, int* mbr) {
         uint32_t x_index = (i % WIDTH);
         uint32_t y_index = (i / WIDTH);
 
-        float calculated_position_x = (x_index / (1.0 * WIDTH)) - 0.5;
-        float calculated_position_y = (y_index / (1.0 * HEIGHT)) - 0.5;
+        float calculated_position_x = (x_index / (0.5 * WIDTH)) - 1.5;
+        float calculated_position_y = (y_index / (0.5 * HEIGHT)) - 1.0;
 
         cuFloatComplex z_0 = make_cuFloatComplex(calculated_position_x, calculated_position_y);
         cuFloatComplex z_n = make_cuFloatComplex(calculated_position_x, calculated_position_y);
@@ -73,8 +73,8 @@ mandelbrot_multi_thread_gpu(int n, int* mbr, uint16_t thread_blocks, uint16_t th
         uint32_t x_index = (i % WIDTH);
         uint32_t y_index = (i / WIDTH);
 
-        float calculated_position_x = (x_index / (1.0 * WIDTH)) - 0.5;
-        float calculated_position_y = (y_index / (1.0 * HEIGHT)) - 0.5;
+        float calculated_position_x = (x_index / (0.5 * WIDTH)) - 1.5;
+        float calculated_position_y = (y_index / (0.5 * HEIGHT)) - 1.0;
 
         cuFloatComplex z_0 = make_cuFloatComplex(calculated_position_x, calculated_position_y);
         cuFloatComplex z_n = make_cuFloatComplex(calculated_position_x, calculated_position_y);

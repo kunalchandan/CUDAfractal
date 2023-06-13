@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
-project(optiks CUDA)
+cmake_minimum_required(VERSION 3.24)
+project(optiks LANGUAGES CUDA CXX)
 
 # Set the C++17 standard
 set(CMAKE_CXX_STANDARD 17)
@@ -7,16 +7,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+set(CUDA_ARCHITECTURES native) # Fixes CMake Warning Policy CMP0104 
 
 # Find the X11 library
 find_package(X11 REQUIRED)
 
 # Set the source files for your program
 set(SOURCES
-    hello.cu
+    fractal.cu
     # Add additional source files here
 )
 
+set(CMAKE_BUILD_TYPE Debug)
 # Create the executable target
 add_executable(${PROJECT_NAME} ${SOURCES})
 

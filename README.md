@@ -8,7 +8,7 @@ I hate C++ with a passion, but we all need to do things that we hate some times.
 
 First render using a single threaded GPU:
 
-[render the first](imgs/render-edges-bad-zoom.png)
+![render the first](imgs/render-edges-bad-zoom.png)
 
 Profiling results for a `640px` width and height:
 
@@ -31,7 +31,7 @@ Profiling results for a `640px` width and height:
 
 Similarly for a `2048px` width and height:
 
-[render larger](imgs/render-2048-2048.png)
+![render larger](imgs/render-2048-2048.png)
 
 ```plain
 ==42795== Profiling application: ./build/optiks
@@ -52,7 +52,7 @@ Similarly for a `2048px` width and height:
 
 Now for the multithreaded version with 4 thread blocks and 256 threads.
 
-[render larger](imgs/render-2048-2048-gpu.png)
+![render larger](imgs/render-2048-2048-gpu.png)
 
 ```plain
 ==43499== Profiling application: ./build/optiks
